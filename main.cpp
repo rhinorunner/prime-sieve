@@ -2,18 +2,19 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
+#include <chrono>
 
 /********************************************/
 
 // prime ceiling
-constexpr uint64_t PS_CEIL = 1000;
+static constexpr uint64_t PS_CEIL = 1000000;
 
 // pipe output
-constexpr bool PS_PIPED = true;
+static constexpr bool PS_PIPED = true;
 
 // seperator between printed values
 // change to std::string if you want
-constexpr char PS_SEP = '\n';
+static constexpr char PS_SEP = '\n';
 
 /********************************************/
 
@@ -46,13 +47,31 @@ std::vector<uint64_t> getPrimes(const uint64_t& ceiling)
 int main()
 {
 	std::cout << "processing...\n";
+	const auto TP1c = std::chrono::high_resolution_clock::now();
 	auto primes = getPrimes(PS_CEIL);
+	const auto TP2c = std::chrono::high_resolution_clock::now();
+	std::cout << "done.\n";
+
+	std::cout << "writing...\n";
+	const auto TP1w = std::chrono::high_resolution_clock::now();
 	if (PS_PIPED) {
 		std::ofstream out("output.txt");
 		for (uint64_t& i : primes) out << i << PS_SEP;
 		out.close();
 	}
 	else for (uint64_t& i : primes) std::cout << i << PS_SEP;
+	const auto TP2w = std::chrono::high_resolution_clock::now();
+	std::cout << "done.\n";
+
+	auto timeTakenCalc  = std::chrono::duration_cast<std::chrono::duration<double>> (TP2c - TP1c);
+	auto timeTakenWrite = std::chrono::duration_cast<std::chrono::duration<double>> (TP2w - TP1w);
+
+	std::cout
+		<< "\ncalculate: "
+		<< std::to_string(timeTakenCalc.count())
+		<< "\nwrite: "
+		<< std::to_string(timeTakenWrite.count())
+		<< '\n';
 
 	return 0;
 }
